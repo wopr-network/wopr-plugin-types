@@ -13,7 +13,8 @@
   ],
   "scripts": {
     "build": "tsc",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "sync-check": "./scripts/sync-check.sh"
   },
   "repository": {
     "type": "git",
