@@ -1,19 +1,17 @@
 name: CI
-
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
-
+permissions:
+  contents: read
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run build
+  ci:
+    uses: wopr-network/.github/.github/workflows/ci-shared.yml@main
+    with:
+      node-version: '22.x'
+      package-manager: 'npm'
+      build-command: 'npm run build'
+      lint-command: 'npm run check'
+      has-tests: false
