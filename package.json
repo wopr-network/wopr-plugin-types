@@ -1,0 +1,23 @@
+{
+  "name": "@wopr-network/plugin-types",
+  "version": "0.1.0",
+  "description": "Canonical type definitions for WOPR plugins",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "lint": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wopr-network/wopr-plugin-types.git"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  }
+}
