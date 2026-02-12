@@ -1,7 +1,9 @@
 {
   "name": "@wopr-network/plugin-types",
   "version": "0.1.0",
-  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Canonical type definitions for WOPR plugins",
   "type": "module",
   "main": "dist/index.js",
