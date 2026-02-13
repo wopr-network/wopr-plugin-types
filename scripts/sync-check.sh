@@ -23,13 +23,14 @@ for file in "$EXT_DIR"/*.ts; do
   core_file="$CORE_DIR/$base"
 
   if [ ! -f "$core_file" ]; then
-    echo "WARN: $base exists in plugin-types but not in core (may be intentional)"
+    echo "DRIFT: $base exists in plugin-types but not in core"
+    DRIFT=1
     continue
   fi
 
   if ! diff -q "$core_file" "$file" > /dev/null 2>&1; then
     echo "DRIFT: $base differs between core and plugin-types"
-    diff --unified=3 "$core_file" "$file" || true
+    diff -U 3 "$core_file" "$file" || true
     DRIFT=1
   fi
 done
@@ -49,7 +50,7 @@ if [ "$DRIFT" -eq 0 ]; then
 else
   echo ""
   echo "FAILED: Type drift detected. Run:"
-  echo "  cp $CORE_DIR/*.ts $EXT_DIR/"
+  echo "  cp \"$CORE_DIR\"/*.ts \"$EXT_DIR/\""
   echo "to sync from core."
   exit 1
 fi

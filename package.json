@@ -14,7 +14,7 @@
   "scripts": {
     "build": "tsc",
     "lint": "tsc --noEmit",
-    "sync-check": "./scripts/sync-check.sh"
+    "sync-check": "./scripts/sync-check.sh ${WOPR_CORE_PLUGIN_TYPES:-../wopr/src/plugin-types}"
   },
   "repository": {
     "type": "git",
