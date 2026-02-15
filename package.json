@@ -13,6 +13,7 @@
   ],
   "scripts": {
     "build": "tsc",
+    "check": "tsc --noEmit",
     "lint": "tsc --noEmit",
     "sync-check": "./scripts/sync-check.sh ${WOPR_CORE_PLUGIN_TYPES:-../wopr/src/plugin-types}"
   },
