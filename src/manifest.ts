@@ -182,34 +182,12 @@ export interface PluginLifecycle {
 
 /**
  * Plugin capabilities — what a plugin provides to the system.
+ * Any string is valid. Plugins define their own capabilities.
  */
-export type PluginCapability =
-  | "channel" // Provides a message channel (Discord, Slack, etc.)
-  | "provider" // Provides an AI model provider
-  | "stt" // Provides speech-to-text
-  | "tts" // Provides text-to-speech
-  | "context" // Provides context to conversations
-  | "storage" // Provides persistent storage
-  | "memory" // Provides long-term memory / RAG
-  | "auth" // Provides authentication
-  | "webhook" // Provides webhook endpoints
-  | "commands" // Provides CLI commands
-  | "ui" // Provides UI components
-  | "a2a" // Provides agent-to-agent tools
-  | "p2p" // Provides peer-to-peer networking
-  | "middleware"; // Provides message middleware/hooks
+export type PluginCapability = string;
 
 /**
  * Plugin categories for marketplace organization.
+ * Any string is valid. Plugins define their own categories.
  */
-export type PluginCategory =
-  | "channel" // Communication channels
-  | "ai-provider" // AI model providers
-  | "voice" // Voice/audio plugins
-  | "memory" // Memory / RAG providers
-  | "p2p" // Peer-to-peer networking
-  | "integration" // Third-party integrations
-  | "utility" // Utility/helper plugins
-  | "security" // Security plugins
-  | "analytics" // Analytics/monitoring
-  | "developer"; // Developer tools
+export type PluginCategory = string;
