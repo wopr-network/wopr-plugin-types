@@ -84,5 +84,18 @@ export type {
   SetupStep,
   StorageRequirements,
 } from "./manifest.js";
+// Storage types
+export type {
+  Filter,
+  FilterCondition,
+  FilterOperator,
+  OrderDirection,
+  PluginSchema,
+  QueryBuilder,
+  Repository,
+  StorageApi,
+  TableIndex,
+  TableSchema,
+} from "./storage.js";
 // Core plugin types
 export type { InstalledPlugin, PluginCommand, PluginRegistryEntry, WOPRPlugin } from "./plugin.js";
