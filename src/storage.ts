@@ -61,6 +61,22 @@ export interface Repository<T extends Record<string, unknown>> {
   count(filter?: Filter<T>): Promise<number>;
   exists(id: string): Promise<boolean>;
   query(): QueryBuilder<T>;
+  /**
+   * Execute raw SQL queries.
+   *
+   * ⚠️ **WARNING: SQL INJECTION RISK**
+   * This method accepts raw SQL strings. Never interpolate user-provided values directly into the SQL string.
+   * Always use parameterized queries with the `params` argument to prevent SQL injection attacks.
+   *
+   * @example
+   * ```typescript
+   * // ❌ UNSAFE - vulnerable to SQL injection
+   * await repo.raw(`SELECT * FROM users WHERE email = '${userInput}'`);
+   *
+   * // ✅ SAFE - use params for user-provided values
+   * await repo.raw('SELECT * FROM users WHERE email = ?', [userInput]);
+   * ```
+   */
   raw(sql: string, params?: unknown[]): Promise<unknown[]>;
   transaction<R>(fn: (repo: Repository<T>) => Promise<R>): Promise<R>;
 }
@@ -109,6 +125,22 @@ export interface StorageApi {
   getRepository<T extends Record<string, unknown>>(namespace: string, tableName: string): Repository<T>;
   isRegistered(namespace: string): boolean;
   getVersion(namespace: string): Promise<number>;
+  /**
+   * Execute raw SQL queries at the storage level.
+   *
+   * ⚠️ **WARNING: SQL INJECTION RISK**
+   * This method accepts raw SQL strings. Never interpolate user-provided values directly into the SQL string.
+   * Always use parameterized queries with the `params` argument to prevent SQL injection attacks.
+   *
+   * @example
+   * ```typescript
+   * // ❌ UNSAFE - vulnerable to SQL injection
+   * await storage.raw(`SELECT * FROM users WHERE email = '${userInput}'`);
+   *
+   * // ✅ SAFE - use params for user-provided values
+   * await storage.raw('SELECT * FROM users WHERE email = ?', [userInput]);
+   * ```
+   */
   raw(sql: string, params?: unknown[]): Promise<unknown[]>;
   transaction<R>(fn: (storage: StorageApi) => Promise<R>): Promise<R>;
 }

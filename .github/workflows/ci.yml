@@ -11,7 +11,7 @@ jobs:
     uses: wopr-network/.github/.github/workflows/ci-shared.yml@main
     with:
       node-version: '22.x'
-      package-manager: 'npm'
-      build-command: 'npm run build'
-      lint-command: 'npm run check'
+      package-manager: 'pnpm'
+      build-command: 'pnpm run build'
+      lint-command: 'pnpm run check'
       has-tests: false
