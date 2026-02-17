@@ -85,6 +85,8 @@ export interface ManifestProviderEntry {
   id: string;
   /** Human-readable display name (e.g., "Chatterbox TTS", "ElevenLabs") */
   displayName: string;
+  /** Provider tier level indicating hosting/cost model */
+  tier: "wopr" | "branded" | "byok";
   /** Config schema for this provider's settings (API key fields, model selection, etc.) */
   configSchema?: ConfigSchema;
 }
