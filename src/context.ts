@@ -10,6 +10,7 @@ import type { ChannelAdapter, ChannelProvider, ChannelRef } from "./channel.js";
 import type { ConfigSchema } from "./config.js";
 import type { ContextProvider } from "./context-provider.js";
 import type { WOPREventBus, WOPRHookManager } from "./events.js";
+import type { StorageApi } from "./storage.js";
 
 /**
  * Multimodal message with optional images.
@@ -235,6 +236,9 @@ export interface WOPRPluginContext {
 
   // Logging
   log: PluginLogger;
+
+  // Storage API - plugin-extensible database
+  storage: StorageApi;
 
   // Plugin directory
   getPluginDir(): string;
