@@ -146,8 +146,8 @@ export interface PluginManifest {
    * Example:
    *   provides: {
    *     capabilities: [
-   *       { type: "tts", id: "chatterbox-local", displayName: "Chatterbox TTS" },
-   *       { type: "stt", id: "whisper-local", displayName: "Local Whisper", configSchema: { ... } }
+   *       { type: "tts", id: "chatterbox-local", displayName: "Chatterbox TTS", tier: "wopr" },
+   *       { type: "stt", id: "whisper-local", displayName: "Local Whisper", tier: "wopr", configSchema: { ... } }
    *     ]
    *   }
    */
