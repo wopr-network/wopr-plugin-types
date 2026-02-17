@@ -75,6 +75,7 @@ export type {
 // Manifest types
 export type {
   InstallMethod,
+  ManifestProviderEntry,
   NetworkRequirements,
   PluginCapability,
   PluginCategory,
