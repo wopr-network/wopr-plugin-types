@@ -31,5 +31,8 @@
     "zod": "^3.23.0",
     "semantic-release": "^24.0.0",
     "@wopr-network/semantic-release-config": "^1.0.0"
+  },
+  "release": {
+    "extends": "@wopr-network/semantic-release-config"
   }
 }
