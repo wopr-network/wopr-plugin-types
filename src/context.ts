@@ -225,7 +225,7 @@ export interface WOPRPluginContext {
   hasCapability(capability: AdapterCapability): boolean;
 
   /** Register a health probe for a capability provider this plugin provides */
-  registerHealthProbe?(capability: string, providerId: string, probe: () => Promise<boolean>): void;
+  registerHealthProbe(capability: string, providerId: string, probe: () => Promise<boolean>): void;
 
   // Storage API - plugin-extensible database storage
   storage: StorageApi;
