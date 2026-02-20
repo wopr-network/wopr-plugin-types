@@ -71,6 +71,16 @@ export interface PluginRequirements {
   services?: string[];
   /** Storage requirements */
   storage?: StorageRequirements;
+  /**
+   * Abstract capabilities this plugin needs to function.
+   * Required capabilities block activation if no provider is configured.
+   * Optional capabilities are shown as suggestions but don't block.
+   *
+   * Examples:
+   *   capabilities: [{ capability: "tts" }]
+   *   capabilities: [{ capability: "stt" }, { capability: "tts", optional: true }]
+   */
+  capabilities?: CapabilityRequirement[];
 }
 
 /**
@@ -85,10 +95,15 @@ export interface ManifestProviderEntry {
   id: string;
   /** Human-readable display name (e.g., "Chatterbox TTS", "ElevenLabs") */
   displayName: string;
-  /** Provider tier level indicating hosting/cost model */
-  tier: "wopr" | "branded" | "byok";
   /** Config schema for this provider's settings (API key fields, model selection, etc.) */
   configSchema?: ConfigSchema;
+  /**
+   * Optional health probe configuration.
+   * If "endpoint", the platform makes an HTTP GET to the plugin's healthEndpoint.
+   * If "builtin", the plugin registers a probe function at init time via context.registerHealthProbe().
+   * Default: no probe (provider assumed healthy).
+   */
+  healthProbe?: "endpoint" | "builtin";
 }
 
 /**
@@ -146,8 +161,8 @@ export interface PluginManifest {
    * Example:
    *   provides: {
    *     capabilities: [
-   *       { type: "tts", id: "chatterbox-local", displayName: "Chatterbox TTS", tier: "wopr" },
-   *       { type: "stt", id: "whisper-local", displayName: "Local Whisper", tier: "wopr", configSchema: { ... } }
+   *       { type: "tts", id: "chatterbox-local", displayName: "Chatterbox TTS" },
+   *       { type: "stt", id: "whisper-local", displayName: "Local Whisper", configSchema: { ... } }
    *     ]
    *   }
    */
@@ -213,6 +228,36 @@ export interface PluginLifecycle {
   shutdownBehavior?: "graceful" | "immediate" | "drain";
   /** Maximum time (ms) the platform waits for shutdown() before force-killing. Default: 10000 */
   shutdownTimeoutMs?: number;
+}
+
+/**
+ * Abstract capabilities that plugins can require or provide.
+ * Any string is valid. Capabilities are discovered from plugins, not hardcoded.
+ */
+export type AdapterCapability = string;
+
+/**
+ * A single capability requirement declared by a plugin.
+ */
+export interface CapabilityRequirement {
+  /** The abstract capability needed */
+  capability: AdapterCapability;
+  /** If true, this capability is a suggestion, not a blocker */
+  optional?: boolean;
+}
+
+/**
+ * A provider option for a capability.
+ * This is the minimal metadata the platform needs to present a provider
+ * in any UI surface. Zero commercial metadata -- just identity + config shape.
+ */
+export interface ProviderOption {
+  /** Unique provider identifier (e.g., "piper-local", "elevenlabs", "openai-tts") */
+  id: string;
+  /** Human-readable display name */
+  name: string;
+  /** Config schema for this provider's settings (API key, model, voice, etc.) */
+  configSchema?: ConfigSchema;
 }
 
 /**

@@ -1,30 +1,38 @@
 /**
- * Storage API types for plugins
+ * Storage API - Plugin-extensible storage abstraction
  *
- * These types allow plugins to use the plugin-extensible storage system.
- * Core provides SQLite/PostgreSQL abstraction - plugins define Zod schemas.
+ * Hides Drizzle ORM completely. Could be replaced with:
+ * - Prisma
+ * - TypeORM
+ * - Knex
+ * - Raw SQL drivers
+ * - Even a different database (MongoDB, etc.)
+ *
+ * Plugins never see the underlying implementation.
  */
 
 import type { z } from "zod";
 
-// ============================================================================
-// Filter Types
-// ============================================================================
-
+/**
+ * Filter operators for queries
+ */
 export type FilterOperator =
-  | "$eq"
-  | "$ne"
-  | "$gt"
-  | "$gte"
-  | "$lt"
-  | "$lte"
-  | "$in"
-  | "$nin"
-  | "$contains"
-  | "$startsWith"
-  | "$endsWith"
-  | "$regex";
+  | "$eq" // Equal
+  | "$ne" // Not equal
+  | "$gt" // Greater than
+  | "$gte" // Greater than or equal
+  | "$lt" // Less than
+  | "$lte" // Less than or equal
+  | "$in" // In array
+  | "$nin" // Not in array
+  | "$contains" // Array contains (for JSON arrays)
+  | "$startsWith" // String starts with
+  | "$endsWith" // String ends with
+  | "$regex"; // Regex match
 
+/**
+ * Filter condition for a single field
+ */
 export type FilterCondition<T> =
   | T
   | { $eq: T }
@@ -36,111 +44,220 @@ export type FilterCondition<T> =
   | { $in: T[] }
   | { $nin: T[] }
   | (T extends Array<infer U> ? { $contains: U } : never)
-  | (T extends string ? { $startsWith: string } | { $endsWith: string } | { $regex: string } : never);
+  | (T extends string
+      ? { $startsWith: string } | { $endsWith: string } | { $regex: string }
+      : never);
 
+/**
+ * Filter for repository queries
+ */
 export type Filter<T> = {
   [K in string & keyof T]?: FilterCondition<T[K]>;
 };
 
+/**
+ * Order direction
+ */
 export type OrderDirection = "asc" | "desc";
 
-// ============================================================================
-// Repository (CRUD operations)
-// ============================================================================
-
-export interface Repository<T extends Record<string, unknown>> {
-  insert(data: T): Promise<T>;
-  insertMany(data: T[]): Promise<T[]>;
-  findById(id: string): Promise<T | null>;
-  findFirst(filter: Filter<T>): Promise<T | null>;
-  findMany(filter?: Filter<T>): Promise<T[]>;
-  update(id: string, data: Partial<T>): Promise<T>;
-  updateMany(filter: Filter<T>, data: Partial<T>): Promise<number>;
-  delete(id: string): Promise<boolean>;
-  deleteMany(filter: Filter<T>): Promise<number>;
-  count(filter?: Filter<T>): Promise<number>;
-  exists(id: string): Promise<boolean>;
-  query(): QueryBuilder<T>;
-  /**
-   * Execute raw SQL queries.
-   *
-   * ⚠️ **WARNING: SQL INJECTION RISK**
-   * This method accepts raw SQL strings. Never interpolate user-provided values directly into the SQL string.
-   * Always use parameterized queries with the `params` argument to prevent SQL injection attacks.
-   *
-   * @example
-   * ```typescript
-   * // ❌ UNSAFE - vulnerable to SQL injection
-   * await repo.raw(`SELECT * FROM users WHERE email = '${userInput}'`);
-   *
-   * // ✅ SAFE - use params for user-provided values
-   * await repo.raw('SELECT * FROM users WHERE email = ?', [userInput]);
-   * ```
-   */
-  raw(sql: string, params?: unknown[]): Promise<unknown[]>;
-  transaction<R>(fn: (repo: Repository<T>) => Promise<R>): Promise<R>;
-}
-
-// ============================================================================
-// Query Builder
-// ============================================================================
-
-export interface QueryBuilder<T extends Record<string, unknown>> {
-  where(filter: Filter<T>): QueryBuilder<T>;
-  orderBy(field: keyof T, direction?: OrderDirection): QueryBuilder<T>;
+/**
+ * Query builder interface - chainable, type-safe
+ */
+export interface QueryBuilder<T> {
+  where<K extends keyof T>(field: K, op: FilterOperator, value: unknown): QueryBuilder<T>;
+  where<K extends keyof T>(field: K, value: T[K]): QueryBuilder<T>;
+  orderBy<K extends keyof T>(field: K, direction?: OrderDirection): QueryBuilder<T>;
   limit(count: number): QueryBuilder<T>;
   offset(count: number): QueryBuilder<T>;
   select<K extends keyof T>(...fields: K[]): QueryBuilder<Pick<T, K>>;
   execute(): Promise<T[]>;
+  count(): Promise<number>;
+  first(): Promise<T | null>;
 }
 
-// ============================================================================
-// Table Schema
-// ============================================================================
+/**
+ * Repository interface - CRUD operations
+ *
+ * This is the ONLY interface plugins see for storage.
+ * No Drizzle types, no SQL, no database-specific concepts.
+ *
+ * @typeParam T - The record type (Zod schema)
+ * @typeParam PK - The primary key field name (defaults to "id")
+ * @typeParam PKType - The primary key value type (defaults to string)
+ */
+export interface Repository<
+  T extends Record<string, unknown>,
+  PK extends keyof T = "id",
+  PKType = T[PK],
+> {
+  /**
+   * Insert a new record
+   * If pk not provided, one will be generated
+   */
+  insert(data: Omit<T, PK> & Partial<Pick<T, PK>>): Promise<T>;
 
+  /**
+   * Insert multiple records
+   */
+  insertMany(data: Array<Omit<T, PK> & Partial<Pick<T, PK>>>): Promise<T[]>;
+
+  /**
+   * Find by primary key
+   */
+  findById(id: PKType): Promise<T | null>;
+
+  /**
+   * Find first matching record
+   */
+  findFirst(filter: Filter<T>): Promise<T | null>;
+
+  /**
+   * Find all matching records
+   */
+  findMany(filter?: Filter<T>): Promise<T[]>;
+
+  /**
+   * Update a record by ID
+   */
+  update(id: PKType, data: Partial<T>): Promise<T>;
+
+  /**
+   * Update all matching records
+   */
+  updateMany(filter: Filter<T>, data: Partial<T>): Promise<number>;
+
+  /**
+   * Delete by ID
+   */
+  delete(id: PKType): Promise<boolean>;
+
+  /**
+   * Delete all matching records
+   */
+  deleteMany(filter: Filter<T>): Promise<number>;
+
+  /**
+   * Count matching records
+   */
+  count(filter?: Filter<T>): Promise<number>;
+
+  /**
+   * Check if record exists
+   */
+  exists(id: PKType): Promise<boolean>;
+
+  /**
+   * Start a query builder
+   */
+  query(): QueryBuilder<T>;
+
+  /**
+   * Execute raw SQL (plugins are trusted)
+   */
+  raw(sql: string, params?: unknown[]): Promise<unknown[]>;
+
+  /**
+   * Run operation in transaction
+   */
+  transaction<R>(fn: (repo: Repository<T>) => Promise<R>): Promise<R>;
+}
+
+/**
+ * Table index definition
+ */
 export interface TableIndex {
   fields: string[];
   unique?: boolean;
 }
 
+/**
+ * Table schema definition
+ *
+ * Plugin defines this with Zod schema.
+ * Core generates Drizzle tables from this.
+ */
 export interface TableSchema {
+  /** Zod schema for validation and types */
   schema: z.ZodObject<Record<string, z.ZodTypeAny>>;
+  /** Primary key field name */
   primaryKey: string;
+  /** Indexes to create */
   indexes?: TableIndex[];
 }
 
+/**
+ * Plugin schema definition
+ *
+ * This is what plugins register with ctx.storage.register()
+ */
 export interface PluginSchema {
+  /** Namespace for tables (e.g., 'p2p' → tables: p2p_friends, p2p_requests) */
   namespace: string;
+  /** Schema version for migrations */
   version: number;
+  /** Table definitions */
   tables: Record<string, TableSchema>;
+  /** Optional: Custom migration function */
+  migrate?: (fromVersion: number, toVersion: number, storage: StorageApi) => Promise<void>;
 }
 
-// ============================================================================
-// Storage API
-// ============================================================================
-
+/**
+ * Storage API interface
+ *
+ * The main interface plugins use to interact with storage.
+ * Added to PluginContext as ctx.storage
+ */
 export interface StorageApi {
+  /** Current database driver (for feature detection) */
   readonly driver: "sqlite" | "postgres";
-  register(schema: PluginSchema): Promise<void>;
-  getRepository<T extends Record<string, unknown>>(namespace: string, tableName: string): Repository<T>;
-  isRegistered(namespace: string): boolean;
-  getVersion(namespace: string): Promise<number>;
+
   /**
-   * Execute raw SQL queries at the storage level.
-   *
-   * ⚠️ **WARNING: SQL INJECTION RISK**
-   * This method accepts raw SQL strings. Never interpolate user-provided values directly into the SQL string.
-   * Always use parameterized queries with the `params` argument to prevent SQL injection attacks.
-   *
-   * @example
-   * ```typescript
-   * // ❌ UNSAFE - vulnerable to SQL injection
-   * await storage.raw(`SELECT * FROM users WHERE email = '${userInput}'`);
-   *
-   * // ✅ SAFE - use params for user-provided values
-   * await storage.raw('SELECT * FROM users WHERE email = ?', [userInput]);
-   * ```
+   * Register a plugin schema
+   * Core creates tables if they don't exist
+   * Runs migrations if version changed
+   */
+  register(schema: PluginSchema): Promise<void>;
+
+  /**
+   * Get a repository for a table
+   * Type parameter T should match the Zod schema type
+   */
+  getRepository<T extends Record<string, unknown>>(
+    namespace: string,
+    tableName: string,
+  ): Repository<T>;
+
+  /**
+   * Check if a schema is registered
+   */
+  isRegistered(namespace: string): boolean;
+
+  /**
+   * Get current schema version
+   */
+  getVersion(namespace: string): Promise<number>;
+
+  /**
+   * Execute raw SQL across the database (for SELECT queries)
    */
   raw(sql: string, params?: unknown[]): Promise<unknown[]>;
+
+  /**
+   * Execute a statement that doesn't return rows (INSERT, UPDATE, DELETE)
+   */
+  run(
+    sql: string,
+    params?: unknown[],
+  ): Promise<{ changes: number; lastInsertRowid: number | bigint }>;
+
+  /**
+   * Run cross-table transaction
+   */
   transaction<R>(fn: (storage: StorageApi) => Promise<R>): Promise<R>;
+
+  /**
+   * Close the storage connection and release resources.
+   * Safe to call multiple times. No-op if already closed.
+   */
+  close(): void;
 }
