@@ -145,3 +145,22 @@ jobs:
           else
             echo "No test script found, skipping"
           fi
+
+  sync-check:
+    name: Sync Check (vs wopr core)
+    runs-on: [self-hosted, Linux, X64]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/checkout@v4
+        with:
+          repository: wopr-network/wopr
+          path: wopr-core
+          sparse-checkout: |
+            src/plugin-types
+            src/storage/api/plugin-storage.ts
+
+      - name: Check type sync with core
+        run: ./scripts/sync-check.sh wopr-core/src/plugin-types

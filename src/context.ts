@@ -5,12 +5,13 @@
  * this object during init() and use it to interact with the WOPR daemon.
  */
 
+import type { StorageApi } from "./storage.js";
 import type { A2AServerConfig } from "./a2a.js";
 import type { ChannelAdapter, ChannelProvider, ChannelRef } from "./channel.js";
 import type { ConfigSchema } from "./config.js";
 import type { ContextProvider } from "./context-provider.js";
 import type { WOPREventBus, WOPRHookManager } from "./events.js";
-import type { StorageApi } from "./storage.js";
+import type { AdapterCapability, ProviderOption } from "./manifest.js";
 
 /**
  * Multimodal message with optional images.
@@ -122,27 +123,11 @@ export interface PluginLogger {
 }
 
 /**
- * STT provider interface (minimal, for context typing).
- * Full definition lives in voice/types.ts.
- */
-export interface STTProviderRef {
-  readonly metadata: { name: string; type: "stt" };
-}
-
-/**
- * TTS provider interface (minimal, for context typing).
- * Full definition lives in voice/types.ts.
- */
-export interface TTSProviderRef {
-  readonly metadata: { name: string; type: "tts" };
-}
-
-/**
  * The full plugin context API.
  *
  * This is the canonical interface that all plugins receive during init().
  * It provides access to sessions, events, hooks, channels, config, UI
- * extensions, voice, A2A tools, and more.
+ * extensions, A2A tools, and more.
  */
 export interface WOPRPluginContext {
   // Inject into local session, get response (with optional streaming)
@@ -202,9 +187,9 @@ export interface WOPRPluginContext {
   // Main WOPR config (read-only)
   getMainConfig(key?: string): unknown;
 
-  // LLM providers (credential management + dispatch)
-  registerLLMProvider(provider: unknown): void;
-  unregisterLLMProvider(id: string): void;
+  // Model providers
+  registerProvider(provider: unknown): void;
+  unregisterProvider(id: string): void;
   getProvider(id: string): unknown;
 
   // Config schemas
@@ -218,13 +203,6 @@ export interface WOPRPluginContext {
   getExtension<T = unknown>(name: string): T | undefined;
   listExtensions(): string[];
 
-  // Voice providers
-  registerSTTProvider(provider: unknown): void;
-  registerTTSProvider(provider: unknown): void;
-  getSTT(): unknown;
-  getTTS(): unknown;
-  hasVoice(): { stt: boolean; tts: boolean };
-
   // Channel providers
   registerChannelProvider(provider: ChannelProvider): void;
   unregisterChannelProvider(id: string): void;
@@ -237,9 +215,18 @@ export interface WOPRPluginContext {
   // Logging
   log: PluginLogger;
 
-  // Storage API - plugin-extensible database
-  storage: StorageApi;
-
   // Plugin directory
   getPluginDir(): string;
+
+  // Capability registry (new)
+  registerCapabilityProvider(capability: AdapterCapability, provider: ProviderOption): void;
+  unregisterCapabilityProvider(capability: AdapterCapability, providerId: string): void;
+  getCapabilityProviders(capability: AdapterCapability): ProviderOption[];
+  hasCapability(capability: AdapterCapability): boolean;
+
+  /** Register a health probe for a capability provider this plugin provides */
+  registerHealthProbe?(capability: string, providerId: string, probe: () => Promise<boolean>): void;
+
+  // Storage API - plugin-extensible database storage
+  storage: StorageApi;
 }

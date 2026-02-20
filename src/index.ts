@@ -25,7 +25,6 @@ export type {
 } from "./channel.js";
 // Config types
 export type { ConfigField, ConfigSchema, SetupFlowType } from "./config.js";
-
 // Context (the runtime API plugins receive)
 export type {
   AgentIdentity,
@@ -42,9 +41,10 @@ export type {
 } from "./context.js";
 // Context provider types
 export type { ContextPart, ContextProvider, MessageInfo } from "./context-provider.js";
-
 // Event and hook types
 export type {
+  CapabilityProviderRegisteredEvent,
+  CapabilityProviderUnregisteredEvent,
   ChannelMessageEvent,
   ChannelMessageHandler,
   ChannelSendEvent,
@@ -74,6 +74,8 @@ export type {
 } from "./events.js";
 // Manifest types
 export type {
+  AdapterCapability,
+  CapabilityRequirement,
   InstallMethod,
   ManifestProviderEntry,
   NetworkRequirements,
@@ -82,10 +84,13 @@ export type {
   PluginLifecycle,
   PluginManifest,
   PluginRequirements,
+  ProviderOption,
   SetupStep,
   StorageRequirements,
 } from "./manifest.js";
-// Storage types
+// Core plugin types
+export type { InstalledPlugin, PluginCommand, PluginRegistryEntry, WOPRPlugin } from "./plugin.js";
+// Storage API types
 export type {
   Filter,
   FilterCondition,
@@ -98,5 +103,3 @@ export type {
   TableIndex,
   TableSchema,
 } from "./storage.js";
-// Core plugin types
-export type { InstalledPlugin, PluginCommand, PluginRegistryEntry, WOPRPlugin } from "./plugin.js";
