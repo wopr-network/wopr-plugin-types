@@ -118,6 +118,6 @@ export interface ChannelProvider {
   sendNotification?(
     channelId: string,
     payload: ChannelNotificationPayload,
-    callbacks: ChannelNotificationCallbacks,
+    callbacks?: ChannelNotificationCallbacks,
   ): Promise<void>;
 }
