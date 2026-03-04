@@ -52,6 +52,8 @@ export interface ConfigField {
   patternError?: string;
   /** Whether this field contains a secret (masks in UI, encrypted at rest) */
   secret?: boolean;
+  /** Whether this field is hidden from the config UI (still stored and passed to the plugin) */
+  hidden?: boolean;
 }
 
 /**
