@@ -20,6 +20,8 @@ export type {
   ChannelCommandContext,
   ChannelMessageContext,
   ChannelMessageParser,
+  ChannelNotificationCallbacks,
+  ChannelNotificationPayload,
   ChannelProvider,
   ChannelRef,
 } from "./channel.js";

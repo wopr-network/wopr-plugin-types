@@ -68,6 +68,27 @@ export interface ChannelMessageParser {
 }
 
 /**
+ * Callbacks for channel notification actions (e.g. accept/deny friend requests).
+ */
+export interface ChannelNotificationCallbacks {
+  onAccept?: () => Promise<void>;
+  onDeny?: () => Promise<void>;
+}
+
+/**
+ * Payload for a channel notification (e.g. p2p:friendRequest:pending).
+ */
+export interface ChannelNotificationPayload {
+  type: string;
+  from?: string;
+  pubkey?: string;
+  encryptPub?: string;
+  signature?: string;
+  channelName?: string;
+  [key: string]: unknown;
+}
+
+/**
  * Channel provider interface.
  *
  * Channel plugins (Discord, Slack, Telegram, etc.) implement this to
@@ -92,4 +113,11 @@ export interface ChannelProvider {
 
   // Bot username for this provider
   getBotUsername(): string;
+
+  // Send a notification (e.g. friend request) with optional action callbacks
+  sendNotification?(
+    channelId: string,
+    payload: ChannelNotificationPayload,
+    callbacks?: ChannelNotificationCallbacks,
+  ): Promise<void>;
 }
