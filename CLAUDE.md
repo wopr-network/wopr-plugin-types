@@ -43,6 +43,10 @@ Semantic versioning strictly. Breaking changes to exported types = major bump. N
 
 Plugins pin `@wopr-network/plugin-types` in their `package.json`. After bumping, update all affected plugins.
 
+## Gotchas
+
+- **Pin reusable workflow refs to commit SHAs** — never `@main`. Mutable branch refs are a supply-chain risk; a compromised upstream push executes in our CI with elevated permissions (e.g. `id-token: write`).
+
 ## Issue Tracking
 
 All issues in **Linear** (team: WOPR). No GitHub issues. Issue descriptions start with `**Repo:** wopr-network/wopr-plugin-types`.
