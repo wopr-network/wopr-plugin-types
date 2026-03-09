@@ -6,6 +6,11 @@ on:
 
 jobs:
   release:
-    uses: wopr-network/.github/.github/workflows/release.yml@main
+    uses: wopr-network/.github/.github/workflows/release.yml@64f3928b96f5e961bb0a84a42430adc66ff7bb1c # main as of 2026-03-09
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
     secrets:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
