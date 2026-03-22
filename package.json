@@ -9,6 +9,9 @@
 		"dist"
 	],
 	"homepage": "https://github.com/wopr-network/wopr-plugin-types#readme",
+	"keywords": [
+		"wopr-plugin"
+	],
 	"license": "MIT",
 	"main": "dist/index.js",
 	"name": "@wopr-network/plugin-types",
