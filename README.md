@@ -1,3 +1,11 @@
+# ⚠️ This package has moved
+
+This package is now maintained in the [wopr-plugins monorepo](https://github.com/wopr-network/wopr-plugins/tree/main/packages/plugin-types).
+
+This repository is archived and no longer accepts contributions.
+
+---
+
 # @wopr-network/plugin-types
 
 Canonical type definitions for all WOPR plugins. This is the single source of truth for plugin-facing types including plugin interfaces, context APIs, event buses, hooks, channels, and more.
